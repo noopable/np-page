@@ -104,6 +104,11 @@ trait ProvidesResource
         $this->onInjectPrototype();
     }
 
+    public function getPrototype()
+    {
+        return $this->prototype;
+    }
+
     protected function onInjectPrototype(){}
 
     /**

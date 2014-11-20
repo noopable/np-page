@@ -21,6 +21,7 @@ interface ResourceInterface extends Acl\Resource\ResourceInterface
 
     public function setResourceClass($class);
 
+    public function getPrototype();
     public function setPrototype(ResourceInterface $prototype);
 
     public function setOption($name, $value);

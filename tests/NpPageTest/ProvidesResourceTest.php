@@ -101,6 +101,16 @@ class ProvidesResourceTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @covers NpPage\ProvidesResource::getPrototype
+     */
+    public function testGetPrototype()
+    {
+        $mock = $this->getMock('NpPage\\ResourceInterface');
+        $this->object->setPrototype($mock);
+        $this->assertSame($mock, $this->object->getPrototype());
+    }
+
+    /**
      * @covers NpPage\ProvidesResource::setOption
      */
     public function testSetOption()
