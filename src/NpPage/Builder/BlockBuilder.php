@@ -8,6 +8,7 @@
 namespace NpPage\Builder;
 
 use NpPage\Block\BlockInterface;
+use NpPage\ResourceInterface;
 use Zend\ServiceManager\ServiceLocatorAwareInterface;
 use Zend\ServiceManager\ServiceLocatorAwareTrait;
 
@@ -23,6 +24,10 @@ class BlockBuilder implements BlockBuilderInterface, ServiceLocatorAwareInterfac
     protected $block;
 
     protected $buildOptions = array();
+
+    protected $repository;
+
+    protected $repositoryServiceName = 'NpPage_BlockRepository';
 
     /**
      *
@@ -55,6 +60,23 @@ class BlockBuilder implements BlockBuilderInterface, ServiceLocatorAwareInterfac
             $res = call_user_func($this->buildOptions, $this);
             if ($res instanceof BlockInterface) {
                 $this->block = $block = $res;
+            }
+        }
+
+        $prototype = $this->block->getOption('prototype', null);
+        if ($prototype) {
+            $repository = $this->getRepository();
+            if (is_string($prototype)) {
+                $prototype = array('name' => $prototype);
+            }
+            if (is_array($prototype)) {
+                if (! isset($prototype['name'])) {
+                    $prototype['name'] = 'block';
+                }
+                $prototype = $repository->getBlock($prototype['name'], $prototype);
+            }
+            if ($prototype instanceof ResourceInterface) {
+                $this->block->setPrototype($prototype);
             }
         }
     }
@@ -107,5 +129,27 @@ class BlockBuilder implements BlockBuilderInterface, ServiceLocatorAwareInterfac
             $this->originalRouteMatch = $application->getMvcEvent()->getRouteMatch();
         }
         return $this->originalRouteMatch;
+    }
+
+    public function setRepository($repository = null)
+    {
+        if (null === $repository) {
+            $sl = $this->getServiceLocator();
+            if (null === $sl) {
+                return;
+            }
+            if ($sl->has($this->repositoryServiceName)) {
+                $repository = $sl->get($this->repositoryServiceName);
+            }
+        }
+        $this->repository = $repository;
+    }
+
+    public function getRepository()
+    {
+        if (!isset($this->repository)) {
+            $this->setRepository();
+        }
+        return $this->repository;
     }
 }

@@ -17,11 +17,6 @@ use NpPage\Block\BlockContainerInterface;
  * @author tomoaki
  */
 class ContainerBuilder extends BlockBuilder {
-
-    protected $repository;
-
-    protected $repositoryServiceName = 'NpPage_BlockRepository';
-
     /**
      *
      * @param \Page\Block\BlockInterface $block
@@ -185,23 +180,5 @@ class ContainerBuilder extends BlockBuilder {
         $this->block->insertBlock($block);
 
         return $this;
-    }
-
-    public function setRepository($repository = null)
-    {
-        if (null === $repository) {
-            if ($this->getServiceLocator()->has($this->repositoryServiceName)) {
-                $repository = $this->getServiceLocator()->get($this->repositoryServiceName);
-            }
-        }
-        $this->repository = $repository;
-    }
-
-    public function getRepository()
-    {
-        if (!isset($this->repository)) {
-            $this->setRepository();
-        }
-        return $this->repository;
     }
 }
