@@ -19,7 +19,7 @@ use NpPage\Block\BlockContainerInterface;
 class ContainerBuilder extends BlockBuilder {
 
     protected $repository;
-    
+
     protected $repositoryServiceName = 'NpPage_BlockRepository';
 
     /**
@@ -29,43 +29,25 @@ class ContainerBuilder extends BlockBuilder {
      * @throws Exception\RuntimeException
      */
     public function build(BlockInterface $block){
-        $this->block = $block;
-
         if (! $block instanceof BlockContainerInterface) {
             throw new Exception\RuntimeException(__CLASS__ . ' depends on \\NpPage\\Block\\BlockContainerInterface');
         }
 
-        $state = $block->getState();
-        if ($state->checkFlag($state::BUILT)) {
-            return $block;
+        return parent::build($block);
+    }
+
+    protected function _build()
+    {
+        parent::_build();
+
+        if (is_array($this->buildOptions) && isset($this->buildOptions['blocks'])) {
+            $this->addChildrenWithDefinition($this->block, $this->buildOptions['blocks']);
         }
 
-        $this->buildOptions = $block->getOption('builder', array());
-
-        /**
-         *
-         * priority queueなので、子ブロックの追加順序はあまり気にしない。
-         * callback内でサービス等に接続して複数ブロックを取得してinsertしたり、
-         * dispatchを定義したりといったことも可能だろう。
-         */
-        if (is_callable($this->buildOptions)) {
-            $res = call_user_func($this->buildOptions, $this);
-            if ($res instanceof BlockContainerInterface) {
-                $this->block = $block = $res;
-            }
-        } elseif (is_array($this->buildOptions) && isset($this->buildOptions['blocks'])) {
-            $this->addChildrenWithDefinition($block, $this->buildOptions['blocks']);
-        }
-
-        $arrayConfig = $block->getBlockArrayConfig();
+        $arrayConfig = $this->block->getBlockArrayConfig();
         if (is_array($arrayConfig) && !empty($arrayConfig)) {
-            $this->addChildrenWithDefinition($block, $arrayConfig);
+            $this->addChildrenWithDefinition($this->block, $arrayConfig);
         }
-
-        $this->prepareViewModel($block);
-
-        $state->setFlag($state::BUILT);
-        return $block;
     }
 
     public function addChildrenWithDefinition(BlockContainerInterface $parent, array $def)

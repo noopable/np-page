@@ -30,7 +30,8 @@ class BlockBuilder implements BlockBuilderInterface, ServiceLocatorAwareInterfac
      */
     protected $originalRouteMatch;
 
-    public function build(BlockInterface $block){
+    public function build(BlockInterface $block)
+    {
         $this->block = $block;
 
         $state = $block->getState();
@@ -40,17 +41,22 @@ class BlockBuilder implements BlockBuilderInterface, ServiceLocatorAwareInterfac
 
         $this->buildOptions = $block->getOption('builder', array());
 
+        $this->_build();
+
+        $this->prepareViewModel($this->block);
+
+        $state->setFlag($state::BUILT);
+        return $this->block;
+    }
+
+    protected function _build()
+    {
         if (is_callable($this->buildOptions)) {
             $res = call_user_func($this->buildOptions, $this);
             if ($res instanceof BlockInterface) {
                 $this->block = $block = $res;
             }
         }
-
-        $this->prepareViewModel($block);
-
-        $state->setFlag($state::BUILT);
-        return $block;
     }
 
     public function prepareViewModel(BlockInterface $block)
@@ -82,7 +88,7 @@ class BlockBuilder implements BlockBuilderInterface, ServiceLocatorAwareInterfac
 
     /**
      * callbackでオリジナルリクエストの情報がほしい場合
-     * 
+     *
      * @return \Zend\Mvc\Router\RouteMatch|null
      */
     public function getOriginalRouteMatch()
