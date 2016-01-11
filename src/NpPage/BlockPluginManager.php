@@ -68,23 +68,21 @@ class BlockPluginManager extends AbstractPluginManager
             }
         }
 
-        if (!isset($options['name'])) {
-            $options['name'] = $blockName;
+        if (isset($options['name'])) {
+            $name = $options['name'];
+        } else {
+            $name = $options['name'] = $blockName;
         }
 
         /**
-         * オプションのclassを優先する。
-         * classがない場合には、ブロック名を利用して試す。
+         * オプションのclassを優先することはできない。
+         * invokableはnormalizeしてしまうから、クラス名ではサービスを取得できない？
          */
-        if (isset($options['class'])) {
-            $name = $options['class'];
-        } else {
-            $name = $blockName;
-        }
-
-        // Allow specifying a class name directly; registers as an invokable class
+            // Allow specifying a class name directly; registers as an invokable class
         if (!array_key_exists($name, $this->invokableClasses)) {
-            if (!$this->has($name) && $this->autoAddInvokableClass && class_exists($name)) {
+            if (isset($options['class'])) {
+                $this->setInvokableClass($name, $options['class']);
+            } elseif(class_exists($name)) {
                 $this->setInvokableClass($name, $name);
             }
         }
