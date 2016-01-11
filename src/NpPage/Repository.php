@@ -32,13 +32,13 @@ class Repository implements RepositoryInterface
      *
      * @var string
      */
-    protected $errorPage;
+    protected $errorPage = 'error';
 
     /**
      *
      * @var string
      */
-    protected $renderErrorPage;
+    protected $renderErrorPage = 'render-error';
 
     /**
      *
@@ -107,7 +107,11 @@ class Repository implements RepositoryInterface
     {
         if (null === $name) {
             $name = $this->getCurrentPage();
+            if (null === $name) {
+                throw new Exception\RuntimeException('getPage() is called. but current page was not set');
+            }
         }
+
 
         if (! isset($this->pages[$name])) {
             $this->pages[$name] = $this->getBlock($name, ['depth' => 0]);
