@@ -17,7 +17,7 @@ use NpPage\Block\BlockInterface;
 class PageBuilder extends BlockBuilder {
     public function prepareViewModel(BlockInterface $block)
     {
-        $sl = $this->getServiceLocator();
+        $sl = $this->getServiceLocator()->getServiceLocator();
         $viewModel = $block->getViewModel();
 
         if (! $block->getTemplate()) {
